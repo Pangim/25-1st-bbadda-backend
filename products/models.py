@@ -1,7 +1,6 @@
 from django.db    import models
 
 from menus.models import InCategory
-from .models      import Size
 
 class Product(models.Model):
     name                = models.CharField(max_length=45)
@@ -13,14 +12,14 @@ class Product(models.Model):
     number_of_selling   = models.IntegerField(default=0)
     price               = models.DecimalField(max_digits=15, decimal_places=3)
     create_at           = models.DateField()
-    incategory          = models.ForeignKey(InCategory, on_delete=models.DO_NOTHING)
+    incategory          = models.ForeignKey(InCategory, on_delete=models.SET_NULL , null=True)
 
     class Meta:
         db_table = "products"
 
 class Products_sizes(models.Model):
     quantity  = models.IntegerField(default=0, null=True)
-    size      = models.ForeignKey(Size, on_delete=models.CASCADE)
+    size      = models.ForeignKey('Size', on_delete=models.CASCADE)
     product   = models.ForeignKey(Product, on_delete=models.CASCADE)
 
     class Meta:

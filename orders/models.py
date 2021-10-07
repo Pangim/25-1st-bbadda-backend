@@ -26,6 +26,7 @@ class Order(models.Model):
     request                 = models.CharField(max_length=2000)
     user                    = models.ForeignKey(User, on_delete=models.CASCADE)
     order_status_code       = models.ForeignKey(Order_status_code, on_delete=models.CASCADE)
+    product                 = models.ManyToManyField(Product, through='Order_item', through_fields=('orders','products'))
 
     class Meta:
         db_table = 'orders'
