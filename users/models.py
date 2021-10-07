@@ -1,7 +1,7 @@
-from django.db import models
-from django.db.models.fields import DateTimeField
+from django.db   import models
+from core.models import TimeStampModel
 
-class User(models.Model):
+class User(TimeStampModel):
     name          = models.CharField(max_length=45)
     account       = models.CharField(max_length=45, null=True)
     phone_number  = models.CharField(max_length=45)
@@ -14,5 +14,3 @@ class User(models.Model):
     gender        = models.BooleanField(null=True)
     foreigner     = models.BooleanField(null=True)
     date_of_birth = models.DateField(null=True)
-    created_at    = DateTimeField(auto_now_add=True)
-    updated_at    = DateTimeField(auto_now=True)
