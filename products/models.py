@@ -29,7 +29,7 @@ class Product(models.Model):
     product_detail_info = models.CharField(max_length=2000)
     number_of_selling   = models.IntegerField(default=0)
     price               = models.DecimalField(max_digits=15, decimal_places=3)
-    create_at           = models.DateField()
+    created_at          = models.DateField()
     sub_category        = models.ForeignKey(SubCategory, on_delete=models.SET_NULL , null=True)
 
     class Meta:
@@ -52,9 +52,9 @@ class Size(models.Model):
         db_table = "sizes"
 
 class Image(models.Model):
-    url      = models.CharField(max_length=2000)
-    info_img = models.TextField(max_length=50000)
-    product  = models.ForeignKey(Product, on_delete=models.CASCADE)
+    image_url      = models.CharField(max_length=2000)
+    information    = models.TextField(max_length=50000)
+    product        = models.ForeignKey(Product, on_delete=models.CASCADE)
 
     class Meta:
         db_table = "images"
