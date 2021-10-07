@@ -1,6 +1,7 @@
 from django.db    import models
 
 from menus.models import InCategory
+from .models      import Size
 
 class Product(models.Model):
     name                = models.CharField(max_length=45)
