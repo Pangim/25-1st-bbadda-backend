@@ -31,12 +31,12 @@ class Order(models.Model):
         db_table = 'orders'
 
 class Order_item(models.Model):
-    size_type               = models.CharField(max_length=45)
-    size_value              = models.CharField(max_length=45)
-    amount                  = models.IntegerField()
-    product                 = models.ForeignKey(Product, on_delete=models.CASCADE)
-    order                   = models.ForeignKey(Order, on_delete=models.CASCADE)
-    order_item_status_code  = models.ForeignKey(Order_item_status_code, on_delete=models.CASCADE)
+    size_type                 = models.CharField(max_length=45)
+    size_value                = models.CharField(max_length=45)
+    quantity                  = models.IntegerField()
+    product                   = models.ForeignKey(Product, on_delete=models.CASCADE)
+    order                     = models.ForeignKey(Order, on_delete=models.CASCADE)
+    order_item_status_code    = models.ForeignKey(Order_item_status_code, on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'order_items'
