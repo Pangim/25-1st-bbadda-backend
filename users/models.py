@@ -14,3 +14,6 @@ class User(TimeStampModel):
     gender        = models.BooleanField(null=True)
     foreigner     = models.BooleanField(null=True)
     date_of_birth = models.DateField(null=True)
+
+    class Meta:
+        db_table = "users"
