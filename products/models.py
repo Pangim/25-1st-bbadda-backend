@@ -13,7 +13,7 @@ class Category(models.Model):
     class Meta:
         db_table = "categories"
 
-class SubCategory(models.Model):
+class Sub_category(models.Model):
     name        = models.CharField(max_length=45)
     category    = models.ForeignKey(Category, on_delete=models.CASCADE)
 
@@ -30,7 +30,7 @@ class Product(models.Model):
     number_of_selling   = models.IntegerField(default=0)
     price               = models.DecimalField(max_digits=15, decimal_places=3)
     created_at          = models.DateField()
-    sub_category        = models.ForeignKey(SubCategory, on_delete=models.SET_NULL , null=True)
+    sub_category        = models.ForeignKey(Sub_category, on_delete=models.SET_NULL , null=True)
 
     class Meta:
         db_table = "products"
