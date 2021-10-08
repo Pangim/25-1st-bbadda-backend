@@ -25,8 +25,8 @@ class Product(models.Model):
     color               = models.CharField(max_length=45)
     team                = models.CharField(max_length=45)
     product_code        = models.CharField(max_length=45)
-    type                = models.CharField(max_length=45)
     product_detail_info = models.CharField(max_length=2000)
+    information         = models.TextField(max_length=50000)
     number_of_selling   = models.IntegerField(default=0)
     price               = models.DecimalField(max_digits=15, decimal_places=3)
     created_at          = models.DateField()
@@ -53,7 +53,6 @@ class Size(models.Model):
 
 class Image(models.Model):
     image_url      = models.CharField(max_length=2000)
-    information    = models.TextField(max_length=50000)
     product        = models.ForeignKey(Product, on_delete=models.CASCADE)
 
     class Meta:
