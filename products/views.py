@@ -24,7 +24,7 @@ class MenuView(View):
             menu         = Menu.objects.get(id=request.GET.get("id"))
             product_list = []
             categories   = menu.category_set.all()
-            
+
             for category in categories:
                 product_list.append([{"name" : j.name, "price" : j.price, "image_url" : j.image_set.filter(product=j)[0].image_url} 
                     for i in category.subcategory_set.all() 
@@ -82,7 +82,7 @@ class SubCategoryView(View):
             data = json.loads(request.body)
             SubCategory.objects.create(
                 name       = data["name"],
-                category = Category.objects.get(id= data["category_id"])
+                category   = Category.objects.get(id= data["category_id"])
             )
 
             return JsonResponse({"message": "CREATED"}, status=201)
@@ -98,8 +98,8 @@ class SubCategoryView(View):
 
             for product in products:
                 product_list.append({
-                    "name" : product.name,
-                    "price" : product.price,
+                    "name"      : product.name,
+                    "price"     : product.price,
                     "image_url" : product.image_set.filter(product=product)[0].image_url
                 })
 
