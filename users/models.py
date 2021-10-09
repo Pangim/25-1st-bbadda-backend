@@ -3,12 +3,12 @@ from core.models import TimeStampModel
 
 class User(TimeStampModel):
     name             = models.CharField(max_length=45)
-    account          = models.CharField(max_length=45, null=True)
+    account          = models.CharField(max_length=45, null=True, unique=True)
     mobile_number    = models.CharField(max_length=45)
     telephone_number = models.CharField(max_length=45, null=True)
     password         = models.CharField(max_length=200, null=True)
     address          = models.CharField(max_length=200, null=True)
-    email            = models.CharField(max_length=45, null=True)
+    email            = models.CharField(max_length=45, null=True, unique=True)
     mileage          = models.IntegerField(default=0, null=True)
     point            = models.DecimalField(default=0.0 ,max_digits=15, decimal_places=3)
     gender           = models.BooleanField(null=True)

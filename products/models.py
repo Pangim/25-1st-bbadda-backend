@@ -24,7 +24,7 @@ class Product(models.Model):
     name                = models.CharField(max_length=45)
     color               = models.CharField(max_length=45)
     team                = models.CharField(max_length=45)
-    product_code        = models.CharField(max_length=45)
+    product_code        = models.CharField(max_length=45, unique=True)
     product_detail_info = models.CharField(max_length=2000)
     information         = models.TextField(max_length=50000)
     number_of_selling   = models.IntegerField(default=0)
@@ -36,7 +36,7 @@ class Product(models.Model):
         db_table = "products"
 
 class Products_sizes(models.Model):
-    quantity  = models.IntegerField(default=0, null=True)
+    quantity  = models.IntegerField(default=1000)
     size      = models.ForeignKey('Size', on_delete=models.CASCADE)
     product   = models.ForeignKey('Product', on_delete=models.CASCADE)
 
