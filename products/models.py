@@ -13,7 +13,7 @@ class Category(models.Model):
     class Meta:
         db_table = "categories"
 
-class Sub_category(models.Model):
+class SubCategory(models.Model):
     name        = models.CharField(max_length=45)
     category    = models.ForeignKey(Category, on_delete=models.CASCADE)
 
@@ -24,19 +24,19 @@ class Product(models.Model):
     name                = models.CharField(max_length=45)
     color               = models.CharField(max_length=45)
     team                = models.CharField(max_length=45)
-    product_code        = models.CharField(max_length=45)
+    product_code        = models.CharField(max_length=45, unique=True)
     product_detail_info = models.CharField(max_length=2000)
     information         = models.TextField(max_length=50000)
     number_of_selling   = models.IntegerField(default=0)
     price               = models.DecimalField(max_digits=15, decimal_places=3)
     created_at          = models.DateField()
-    sub_category        = models.ForeignKey(Sub_category, on_delete=models.SET_NULL , null=True)
+    sub_category        = models.ForeignKey(SubCategory, on_delete=models.SET_NULL , null=True)
 
     class Meta:
         db_table = "products"
 
 class Products_sizes(models.Model):
-    quantity  = models.IntegerField(default=0, null=True)
+    quantity  = models.IntegerField(default=1000)
     size      = models.ForeignKey('Size', on_delete=models.CASCADE)
     product   = models.ForeignKey('Product', on_delete=models.CASCADE)
 

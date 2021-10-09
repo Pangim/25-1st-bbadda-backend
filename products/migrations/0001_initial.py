@@ -62,7 +62,7 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='Sub_category',
+            name='SubCategory',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=45)),
