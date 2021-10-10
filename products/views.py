@@ -24,11 +24,16 @@ class MenuView(View):
             menu         = Menu.objects.get(id=request.GET.get("id"))
             product_list = []
             categories   = menu.category_set.all()
-
-            for category in categories:
-                product_list.append([{"name" : j.name, "price" : j.price, "image_url" : j.image_set.filter(product=j)[0].image_url} 
-                    for i in category.subcategory_set.all() 
-                    for j in i.product_set.all()])
+            
+            product_list.append([{
+                "name"      : product.name, 
+                "price"     : product.price, 
+                "image_url" : product.image_set.filter(product=product).first().image_url
+                } 
+                for category in categories
+                for subcategory in category.subcategory_set.all() 
+                for product in subcategory.product_set.all()
+            ])
             
             return JsonResponse({"name" : menu.name, "content" : product_list}, status = 200)
 
@@ -61,15 +66,14 @@ class CategoryView(View):
             sub_categories = category.subcategory_set.all()
             product_list   = []
 
-            for sub_category in sub_categories:
-                products = sub_category.product_set.all()
-
-                for product in products:
-                    product_list.append({
-                        "name"        : product.name,
-                        "price"       : product.price,
-                        "image_url"   : product.image_set.filter(product=product)[0].image_url
-                    })
+            product_list.append([{
+                "name"      : product.name, 
+                "price"     : product.price, 
+                "image_url" : product.image_set.filter(product=product).first().image_url,
+                } 
+                for sub_category in sub_categories 
+                for product in sub_category.product_set.all()
+            ])
 
             return JsonResponse({"name" : category.name, "content" : product_list}, status = 200)
 
@@ -93,15 +97,15 @@ class SubCategoryView(View):
     def get(self, request):
         try:
             sub_category = SubCategory.objects.get(id =request.GET.get("id"))
-            products = sub_category.product_set.all()
+            products     = sub_category.product_set.all()
             product_list = []
-
-            for product in products:
-                product_list.append({
-                    "name"      : product.name,
-                    "price"     : product.price,
-                    "image_url" : product.image_set.filter(product=product)[0].image_url
-                })
+            product_list.append([{
+                "name"      : product.name,
+                "price"     : product.price,
+                "image_url" : product.image_set.filter(product=product).first().image_url
+                }
+                for product in products
+                ])
 
             return JsonResponse({"name" : sub_category.name, "content" : product_list}, status = 200)
 
@@ -147,8 +151,8 @@ class ProductView(View):
                 "information"           : product.information,
                 "price"                 : product.price,
                 "created_at"            : product.created_at,
-                "image"                 : [{"image_url_url" : i.image_url} for i in product.image_set.all()],
-                "size"                  : {"value" : [i.value for i in product.size_set.all()]}
+                "image"                 : [{"image_url_url" : image.image_url} for image in product.image_set.all()],
+                "size"                  : {"value" : [size.value for size in product.size_set.all()]}
             }
 
             return JsonResponse({"result" : product_list}, status = 200)
