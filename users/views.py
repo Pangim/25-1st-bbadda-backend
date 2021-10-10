@@ -48,7 +48,7 @@ class SignupView(View):
 class SigninView(View):
     def post(self, request):
         try:
-            data = json.loads(request.body)
+            data          = json.loads(request.body)
             user_account  = data['account']
             user_password = data['password']
             user = User.objects.get(account=user_account)
