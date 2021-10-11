@@ -1,15 +1,15 @@
 import jwt
 
-from django.http import JsonResponse
+from django.http    import JsonResponse
 
-from users.models import User
-from my_settings import SECRET_KEY, ALGORITHM
+from users.models   import User
+from my_settings    import SECRET_KEY, ALGORITHM
 
 def login_deco(func):
     def wrapper(self, request, *args, **kwargs):
         try:
-            user_info = jwt.decode(request.headers.get('authorization'), SECRET_KEY, algorithms=ALGORITHM)
-            user = User.objects.get(id=user_info)
+            user_info    = jwt.decode(request.headers.get('authorization'), SECRET_KEY, algorithms=ALGORITHM)
+            user         = User.objects.get(id=user_info)
             request.user = user
 
         except User.DoesNotExist:

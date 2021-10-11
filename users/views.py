@@ -51,7 +51,7 @@ class SigninView(View):
             data     = json.loads(request.body)
             account  = data['account']
             password = data['password']
-            user = User.objects.get(account=account)
+            user     = User.objects.get(account=account)
 
             if not bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
                 return JsonResponse({'message' : 'INVALID_PASSWORD'}, status = 400)
