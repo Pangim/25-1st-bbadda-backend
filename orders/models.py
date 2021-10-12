@@ -14,19 +14,18 @@ class Order_item_status_code(models.Model):
 class Order_status_code(models.Model):
     order_status_code           = models.CharField(max_length=45)
     order_status_description    = models.CharField(max_length=200)
+    order                       = models.ForeignKey("Order", on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'order_status_codes'
 
 class Order(TimeStampModel):
     receiver_name           = models.CharField(max_length=45)
-    receiver_phone_number   = models.CharField(max_length=45)
+    receiver_mobile_number  = models.CharField(max_length=45)
     order_number            = models.CharField(max_length=45)
-    receiver_telephone      = models.CharField(max_length=45, null=True)
     receiver_address        = models.CharField(max_length=200)
     request                 = models.CharField(max_length=2000)
     user                    = models.ForeignKey(User, on_delete=models.CASCADE)
-    order_status_code       = models.ForeignKey(Order_status_code, on_delete=models.CASCADE)
     product                 = models.ManyToManyField(Product, through='Order_item', through_fields=('order','product'))
     
     class Meta:
