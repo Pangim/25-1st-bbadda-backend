@@ -31,6 +31,8 @@ class Product(models.Model):
     price               = models.DecimalField(max_digits=15, decimal_places=3)
     created_at          = models.DateField()
     sub_category        = models.ForeignKey(SubCategory, on_delete=models.SET_NULL , null=True)
+    menu                = models.ForeignKey(Menu, on_delete=models.SET_NULL , null=True)
+    category            = models.ForeignKey(Category, on_delete=models.SET_NULL , null=True)
 
     class Meta:
         db_table = "products"
