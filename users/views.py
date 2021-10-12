@@ -19,6 +19,9 @@ class SignupView(View):
             if User.objects.filter(account=data['account']).exists():
                 return JsonResponse({'message' : 'DUPLICATED_ID'}, status = 400)
 
+            if len(data['account']) < 6 or len(data['account']) > 15:
+                return JsonResponse({'message' : 'INVALID_ACCOUNT'})
+
             if not validate_email(data['email']):
                 return JsonResponse({'message' : 'INVALID_EMAIL'}, status = 400)
 
@@ -36,7 +39,6 @@ class SignupView(View):
                 foreigner        = data['foreigner'],
                 mobile_number    = data['mobile_number'],
                 email            = data['email'],
-                telephone_number = data.get('telephone_number'),
                 address          = data.get('address'),
             )
 

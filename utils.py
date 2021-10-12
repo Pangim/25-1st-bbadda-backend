@@ -5,7 +5,7 @@ from django.http    import JsonResponse
 from users.models   import User
 from my_settings    import SECRET_KEY, ALGORITHM
 
-def login_deco(func):
+def login_required(func):
     def wrapper(self, request, *args, **kwargs):
         try:
             user_info    = jwt.decode(request.headers.get('authorization'), SECRET_KEY, algorithms=ALGORITHM)
