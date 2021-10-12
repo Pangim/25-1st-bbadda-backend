@@ -22,18 +22,18 @@ class MenuView(View):
     def get(self, request):
         try:
             menu         = Menu.objects.get(id=request.GET.get("id"))
-            product_list = []
-            categories   = menu.category_set.all()
-            
-            product_list.append([{
-                "name"      : product.name, 
-                "price"     : product.price, 
-                "image_url" : product.image_set.filter(product=product).first().image_url
+            sorting      = request.GET.get('sort', '-created_at')
+            offset       = int(request.GET.get('offset', 0))
+            limit        = int(request.GET.get('limit', len(Product.objects.all())))
+            product_list = [{
+                "name"              : product.name, 
+                "price"             : product.price, 
+                "image_url"         : product.image_set.first().image_url,
+                "created_at"        : product.created_at,
+                "number_of_selling" : product.number_of_selling,
                 } 
-                for category in categories
-                for subcategory in category.subcategory_set.all() 
-                for product in subcategory.product_set.all()
-            ])
+                for idx, product in enumerate(menu.product_set.all().order_by(sorting)) if offset * limit <= idx < (offset + 1) * limit
+            ]
             
             return JsonResponse({"name" : menu.name, "content" : product_list}, status = 200)
 
@@ -45,6 +45,9 @@ class MenuView(View):
 
         except SubCategory.DoesNotExist:
             return JsonResponse({"message" : "SUB_CATEGORY_DOES_NOT_EXIST"}, status = 400)
+
+        except AttributeError:
+            return JsonResponse({'message' : 'IMAGE_DOES_NOT_EXIST'}, status = 400)        
 
 class CategoryView(View):
     def post(self, request):
@@ -62,23 +65,27 @@ class CategoryView(View):
 
     def get(self, request):
         try:
-            category       = Category.objects.get(id=request.GET.get("id"))
-            sub_categories = category.subcategory_set.all()
-            product_list   = []
-
-            product_list.append([{
-                "name"      : product.name, 
-                "price"     : product.price, 
-                "image_url" : product.image_set.filter(product=product).first().image_url,
+            category     = Category.objects.get(id=request.GET.get("id"))
+            sorting      = request.GET.get('sort', '-created_at')
+            offset       = int(request.GET.get('offset', 0))
+            limit        = int(request.GET.get('limit', len(Product.objects.all())))
+            product_list = [{
+                "name"              : product.name, 
+                "price"             : product.price, 
+                "image_url"         : product.image_set.first().image_url,
+                "created_at"        : product.created_at,
+                "number_of_selling" : product.number_of_selling,
                 } 
-                for sub_category in sub_categories 
-                for product in sub_category.product_set.all()
-            ])
+                for idx, product in enumerate(category.product_set.all().order_by(sorting)) if offset * limit <= idx < (offset + 1) * limit
+            ]
 
             return JsonResponse({"name" : category.name, "content" : product_list}, status = 200)
 
         except Category.DoesNotExist:
             return JsonResponse({"message" : "CATEGORY_DOES_NOT_EXIST"}, status = 400)
+
+        except AttributeError:
+            return JsonResponse({'message' : 'IMAGE_DOES_NOT_EXIST'}, status = 400)    
 
 class SubCategoryView(View):
     def post(self, request):
@@ -97,27 +104,38 @@ class SubCategoryView(View):
     def get(self, request):
         try:
             sub_category = SubCategory.objects.get(id =request.GET.get("id"))
-            products     = sub_category.product_set.all()
-            product_list = []
-            product_list.append([{
-                "name"      : product.name,
-                "price"     : product.price,
-                "image_url" : product.image_set.filter(product=product).first().image_url
-                }
-                for product in products
-                ])
+            sorting      = request.GET.get('sort', '-created_at')
+            offset       = int(request.GET.get('offset', 0))
+            limit        = int(request.GET.get('limit', len(Product.objects.all())))
+            product_list = [{
+                "name"              : product.name, 
+                "price"             : product.price,
+                "image_url"         : product.image_set.first().image_url,
+                "created_at"        : product.created_at,
+                "number_of_selling" : product.number_of_selling,
+                } 
+                for idx, product in enumerate(sub_category.product_set.all().order_by(sorting)) if offset * limit <= idx < (offset + 1) * limit
+            ]
 
             return JsonResponse({"name" : sub_category.name, "content" : product_list}, status = 200)
 
         except SubCategory.DoesNotExist:
             return JsonResponse({"message" : "SUB_CATEGORY_DOES_NOT_EXIST"}, status = 400)
 
+        except AttributeError:
+            return JsonResponse({'message' : 'IMAGE_DOES_NOT_EXIST'}, status = 400)    
+
 class ProductView(View):
     def post(self, request):
         try:
-            data = json.loads(request.body)
+            data          = json.loads(request.body)
+            menu          = Menu.objects.get(id=data['menu'])
+            category      = menu.category_set.get(id=data['category'])
+            sub_category  = category.subcategory_set.get(id=data['sub_category'])
             Product.objects.create(
-                sub_category        = SubCategory.objects.get(id=data["sub_category"]),
+                menu                = menu,
+                category            = category,
+                sub_category        = sub_category,
                 name                = data["name"],
                 color               = data["color"],
                 team                = data["team"],
@@ -132,6 +150,12 @@ class ProductView(View):
 
         except KeyError:
             return JsonResponse({"message" : "KEY_ERROR"}, status = 400)
+
+        except Menu.DoesNotExist:
+            return JsonResponse({'message' : "MENU_DOES_NOT_EXIST"}, status = 400)
+
+        except Category.DoesNotExist:
+            return JsonResponse({'message' : "CATEGORY_DOES_NOT_EXIST"}, status = 400)
 
         except SubCategory.DoesNotExist:
             return JsonResponse({"message" : "SUB_CATEGORY_DOES_NOT_EXIST"}, status = 400)
@@ -151,7 +175,7 @@ class ProductView(View):
                 "information"           : product.information,
                 "price"                 : product.price,
                 "created_at"            : product.created_at,
-                "image"                 : [{"image_url_url" : image.image_url} for image in product.image_set.all()],
+                "image"                 : [{"image_url" : image.image_url} for image in product.image_set.all()],
                 "size"                  : {"value" : [size.value for size in product.size_set.all()]}
             }
 
@@ -159,6 +183,8 @@ class ProductView(View):
     
         except Product.DoesNotExist:
             return JsonResponse({"message" : "PRODUCT_DOES_NOT_EXIST"}, status = 400)
+
+
 
 class ImageView(View):
     def post(self, request):
