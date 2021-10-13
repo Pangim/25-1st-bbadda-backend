@@ -28,11 +28,11 @@ class MenuView(View):
             product_list = [{
                 "name"              : product.name, 
                 "price"             : product.price, 
-                "image_url"         : product.image_set.first().image_url,
+                "image_url"         : product.image_set.first().image_url if product.image_set.first() else None,
                 "created_at"        : product.created_at,
                 "number_of_selling" : product.number_of_selling,
                 } 
-                for idx, product in enumerate(menu.product_set.all().order_by(sorting)) if offset * limit <= idx < (offset + 1) * limit
+                for product in menu.product_set.all().order_by(sorting)[offset:offset+limit]
             ]
             
             return JsonResponse({"name" : menu.name, "content" : product_list}, status = 200)
@@ -46,8 +46,6 @@ class MenuView(View):
         except SubCategory.DoesNotExist:
             return JsonResponse({"message" : "SUB_CATEGORY_DOES_NOT_EXIST"}, status = 400)
 
-        except AttributeError:
-            return JsonResponse({'message' : 'IMAGE_DOES_NOT_EXIST'}, status = 400)        
 
 class CategoryView(View):
     def post(self, request):
@@ -72,11 +70,11 @@ class CategoryView(View):
             product_list = [{
                 "name"              : product.name, 
                 "price"             : product.price, 
-                "image_url"         : product.image_set.first().image_url,
+                "image_url"         : product.image_set.first().image_url if product.image_set.first() else None,
                 "created_at"        : product.created_at,
                 "number_of_selling" : product.number_of_selling,
                 } 
-                for idx, product in enumerate(category.product_set.all().order_by(sorting)) if offset * limit <= idx < (offset + 1) * limit
+                for product in category.product_set.all().order_by(sorting)[offset:offset+limit]
             ]
 
             return JsonResponse({"name" : category.name, "content" : product_list}, status = 200)
@@ -110,11 +108,11 @@ class SubCategoryView(View):
             product_list = [{
                 "name"              : product.name, 
                 "price"             : product.price,
-                "image_url"         : product.image_set.first().image_url,
+                "image_url"         : product.image_set.first().image_url if product.image_set.first() else None,
                 "created_at"        : product.created_at,
                 "number_of_selling" : product.number_of_selling,
                 } 
-                for idx, product in enumerate(sub_category.product_set.all().order_by(sorting)) if offset * limit <= idx < (offset + 1) * limit
+                for product in sub_category.product_set.all().order_by(sorting)[offset:offset+limit]
             ]
 
             return JsonResponse({"name" : sub_category.name, "content" : product_list}, status = 200)
@@ -176,15 +174,13 @@ class ProductView(View):
                 "price"                 : product.price,
                 "created_at"            : product.created_at,
                 "image"                 : [{"image_url" : image.image_url} for image in product.image_set.all()],
-                "size"                  : {"value" : [size.value for size in product.size_set.all()]}
+                "size"                  : [{"type" : size.type, "value" : size.value, "quantity" : size.products_sizes_set.first().quantity} for size in product.size_set.all()]
             }
 
             return JsonResponse({"result" : product_list}, status = 200)
     
         except Product.DoesNotExist:
             return JsonResponse({"message" : "PRODUCT_DOES_NOT_EXIST"}, status = 400)
-
-
 
 class ImageView(View):
     def post(self, request):
@@ -206,18 +202,14 @@ class SizeView(View):
     def post(self, request):
         try:
             data = json.loads(request.body)
+            sizes = Size.objects.get(id=data['size'])
 
-            if Product.objects.get(id=data['product']).subcategory.category.menu.name != data['type']:
+            if Product.objects.get(id=data['product']).menu.name != sizes.type:
                 return JsonResponse({"message" : "INVALID_SIZE_TYPE"})
 
             sizes = Size.objects.create(
                 type  = data['type'],
                 value = data['value'],
-            )
-            
-            sizes.products_sizes_set.create(
-                product = Product.objects.get(id=data['product']),
-                size    = sizes,
             )
         
             return JsonResponse({"message" : "CREATED"}, status = 201)
