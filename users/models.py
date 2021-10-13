@@ -10,8 +10,8 @@ class User(TimeStampModel):
     email            = models.CharField(max_length=45, null=True)
     mileage          = models.IntegerField(default=0)
     point            = models.DecimalField(default=1000000.0 ,max_digits=15, decimal_places=3)
-    gender           = models.BooleanField()
-    foreigner        = models.BooleanField()
+    gender           = models.NullBooleanField()
+    foreigner        = models.NullBooleanField()
     date_of_birth    = models.DateField(null=True)
 
     class Meta:
