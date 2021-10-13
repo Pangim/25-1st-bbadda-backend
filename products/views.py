@@ -24,7 +24,7 @@ class MenuView(View):
             menu         = Menu.objects.get(id=request.GET.get("id"))
             sorting      = request.GET.get('sort', '-created_at')
             offset       = int(request.GET.get('offset', 0))
-            limit        = int(request.GET.get('limit', len(Product.objects.all())))
+            limit        = int(request.GET.get('limit', 8))
             product_list = [{
                 "name"              : product.name, 
                 "price"             : product.price, 
@@ -68,7 +68,7 @@ class CategoryView(View):
             category     = Category.objects.get(id=request.GET.get("id"))
             sorting      = request.GET.get('sort', '-created_at')
             offset       = int(request.GET.get('offset', 0))
-            limit        = int(request.GET.get('limit', len(Product.objects.all())))
+            limit        = int(request.GET.get('limit', 8))
             product_list = [{
                 "name"              : product.name, 
                 "price"             : product.price, 
@@ -106,7 +106,7 @@ class SubCategoryView(View):
             sub_category = SubCategory.objects.get(id =request.GET.get("id"))
             sorting      = request.GET.get('sort', '-created_at')
             offset       = int(request.GET.get('offset', 0))
-            limit        = int(request.GET.get('limit', len(Product.objects.all())))
+            limit        = int(request.GET.get('limit', 8))
             product_list = [{
                 "name"              : product.name, 
                 "price"             : product.price,
