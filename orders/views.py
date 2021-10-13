@@ -46,13 +46,13 @@ class OrderView(View):
             # except KeyError:
             #     return JsonResponse({"massage":"KeyError"}, status=401)
 
-        # @login_required
+        @login_required
         def get(self, request):
             try:
-                # user = request.user.id
-                # user_name          = User.objects.get(id = user).name
-                # user_mobile_number = User.objects.get(id = user).mobile_number
-                # user_email         = User.objects.get(id = user).email
+                user = request.user.id
+                user_name          = User.objects.get(id = user).name
+                user_mobile_number = User.objects.get(id = user).mobile_number
+                user_email         = User.objects.get(id = user).email
                 # quantity = request.GET.get('quantity')
 
                 # products           = Product.objects.get(product_code = request.Get.get('code'))
@@ -60,15 +60,10 @@ class OrderView(View):
                 # products_images     = products.images_set.all()
                 # sizes              = products_sizes.sizes_set.all()
 
-                # user_information = [{
-                #     "name"          : user_name,
-                #     "mobile_number" : user_mobile_number,
-                #     "email"         : user_email
-                # }]
                 user_information = [{
-                    "name"          : "1",
-                    "mobile_number" : "2",
-                    "email"         : "3"
+                    "name"          : user_name,
+                    "mobile_number" : user_mobile_number,
+                    "email"         : user_email
                 }]
 
                 # products_information = [{
