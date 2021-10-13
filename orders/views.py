@@ -4,15 +4,15 @@ import random
 from django.views    import View
 from django.http     import JsonResponse
 
-from orders.models   import Order, Order_status_code
-from products.models import Product, Products_sizes, Size
 from users.models    import User
+from orders.models   import Order
+from products.models import Product, Size
 from utils           import login_required
 
 class OrderView(View):
         @login_required
         def post(self, request):
-            # try:
+            try:
                 data              = json.loads(request.body)
                 user              = request.user
                 type              = data['type']
@@ -20,6 +20,12 @@ class OrderView(View):
                 quantity          = data['quantity']
                 products          = Product.objects.get(product_code = request.GET.get('code'))
                 products_filter   = Size.objects.get(type=type, value=value).products_sizes_set.filter(product = products)
+
+                if user.point - int(quantity) * products.price < 0:
+                    return JsonResponse({"message":"NO MONEY"}, status=401)
+
+                if products_filter.first().quantity - int(quantity) < 0:
+                    return JsonResponse({"message":"NO PRODUCT"}, status=401)
 
                 if products_filter.exists():
                     
@@ -43,8 +49,8 @@ class OrderView(View):
 
                     return JsonResponse({"massage":"create"}, status=201)
             
-            # except KeyError:
-            #     return JsonResponse({"massage":"KeyError"}, status=401)
+            except KeyError:
+                return JsonResponse({"massage":"KeyError"}, status=401)
 
         @login_required
         def get(self, request):
@@ -53,28 +59,15 @@ class OrderView(View):
                 user_name          = User.objects.get(id = user).name
                 user_mobile_number = User.objects.get(id = user).mobile_number
                 user_email         = User.objects.get(id = user).email
-                # quantity = request.GET.get('quantity')
 
-                # products           = Product.objects.get(product_code = request.Get.get('code'))
-                # products_sizes     = products.products_sizes_set.all()
-                # products_images     = products.images_set.all()
-                # sizes              = products_sizes.sizes_set.all()
-
-                user_information = [{
+                user_information = {
                     "name"          : user_name,
                     "mobile_number" : user_mobile_number,
                     "email"         : user_email
-                }]
+                }
 
-                # products_information = [{
-                #     "name"     : products.name,
-                #     "size"     : sizes.value,
-                #     "price"    : products.price,
-                #     "image"    : products_images.image_url,
-                #     "quantity" : quantity
-                # }]
 
                 return JsonResponse({"User" : user_information}, status=201)
-#, "Product" : products_information
+
             except KeyError:
                 return JsonResponse({"massage" : "KeyError"}, status=401)
