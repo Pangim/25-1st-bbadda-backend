@@ -9,7 +9,7 @@ def login_required(func):
     def wrapper(self, request, *args, **kwargs):
         try:
             user_info    = jwt.decode(request.headers.get('authorization'), SECRET_KEY, algorithms=ALGORITHM)
-            user         = User.objects.get(id=user_info)
+            user         = User.objects.get(id=user_info['id'])
             request.user = user
 
         except User.DoesNotExist:
