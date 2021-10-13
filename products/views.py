@@ -94,7 +94,7 @@ class SubCategoryView(View):
                 category   = Category.objects.get(id= data["category_id"])
             )
 
-            return JsonResponse({"message": "CREATED"}, status=201)
+            return JsonResponse({"message" : "CREATED"}, status=201)
 
         except KeyError:
             return JsonResponse({"message" : "KEY_ERROR"}, status = 400)
@@ -174,7 +174,10 @@ class ProductView(View):
                 "price"                 : product.price,
                 "created_at"            : product.created_at,
                 "image"                 : [{"image_url" : image.image_url} for image in product.image_set.all()],
-                "size"                  : [{"type" : size.type, "value" : size.value, "quantity" : size.products_sizes_set.first().quantity} for size in product.size_set.all()]
+                "size"                  : [{
+                    "type"     : size.type, 
+                    "value"    : size.value, 
+                    "quantity" : size.products_sizes_set.first().quantity} for size in product.size_set.all()]
             }
 
             return JsonResponse({"result" : product_list}, status = 200)
@@ -201,7 +204,7 @@ class ImageView(View):
 class SizeView(View):
     def post(self, request):
         try:
-            data = json.loads(request.body)
+            data  = json.loads(request.body)
             sizes = Size.objects.get(id=data['size'])
 
             if Product.objects.get(id=data['product']).menu.name != sizes.type:
