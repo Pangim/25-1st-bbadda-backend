@@ -1,61 +1,60 @@
-from django.db    import models
+from django import views
+from django.db          import models
 
-class Menu(models.Model):
-    name = models.CharField(max_length=45)
+from users.models       import User
+from products.models    import Product, Products_sizes
+from core.models        import TimeStampModel
 
-    class Meta:
-        db_table = "menus"
-
-class Category(models.Model):
-    name = models.CharField(max_length=45)
-    menu = models.ForeignKey(Menu, on_delete=models.CASCADE)
-
-    class Meta:
-        db_table = "categories"
-
-class SubCategory(models.Model):
-    name        = models.CharField(max_length=45)
-    category    = models.ForeignKey(Category, on_delete=models.CASCADE)
+class Order_item_status_code(models.Model):
+    order_item_status_code          = models.CharField(max_length=45)
+    order_item_status_description   = models.CharField(max_length=200)
 
     class Meta:
-        db_table = "sub_categories"
+        db_table = 'order_item_status_codes'
 
-class Product(models.Model):
-    name                = models.CharField(max_length=45)
-    color               = models.CharField(max_length=45)
-    team                = models.CharField(max_length=45)
-    product_code        = models.CharField(max_length=45, unique=True)
-    product_detail_info = models.CharField(max_length=2000)
-    information         = models.TextField(max_length=50000)
-    number_of_selling   = models.IntegerField(default=0)
-    price               = models.DecimalField(max_digits=15, decimal_places=3)
-    created_at          = models.DateField()
-    sub_category        = models.ForeignKey(SubCategory, on_delete=models.SET_NULL , null=True)
-    menu                = models.ForeignKey(Menu, on_delete=models.SET_NULL , null=True)
-    category            = models.ForeignKey(Category, on_delete=models.SET_NULL , null=True)
+class Order_status_code(models.Model):
+    order_status_code           = models.CharField(max_length=45)
+    order_status_description    = models.CharField(max_length=200)
+    order                       = models.ForeignKey("Order", on_delete=models.CASCADE)
 
     class Meta:
-        db_table = "products"
+        db_table = 'order_status_codes'
 
-class Products_sizes(models.Model):
-    quantity  = models.IntegerField(default=1000)
-    size      = models.ForeignKey('Size', on_delete=models.CASCADE)
-    product   = models.ForeignKey('Product', on_delete=models.CASCADE)
+class Order(TimeStampModel):
+    receiver_name           = models.CharField(max_length=45)
+    receiver_mobile_number  = models.CharField(max_length=45)
+    order_number            = models.CharField(max_length=45)
+    receiver_address        = models.CharField(max_length=200)
+    request                 = models.CharField(max_length=2000)
+    user                    = models.ForeignKey(User, on_delete=models.CASCADE)
+    product                 = models.ManyToManyField(Product, through='Order_item', through_fields=('order','product'))
+    
+    class Meta:
+        db_table = 'orders'
+
+class Order_item(TimeStampModel):
+    size_type                 = models.CharField(max_length=45)
+    size_value                = models.CharField(max_length=45)
+    quantity                  = models.IntegerField()
+    product                   = models.ForeignKey(Product, on_delete=models.CASCADE)
+    order                     = models.ForeignKey(Order, on_delete=models.CASCADE)
 
     class Meta:
-        db_table = "products_sizes"
+        db_table = 'order_items'
 
-class Size(models.Model):
-    type    = models.CharField(max_length=45)
-    value   = models.CharField(max_length=45)
-    product = models.ManyToManyField(Product, through=Products_sizes, through_fields=('size', 'product'))
+class Shipment(TimeStampModel):
+    shipment_tracking_number    = models.CharField(max_length=45)
+    order_shipment_detail       = models.CharField(max_length=200)
+    shipment_date               = models.DateField()
+    order                       = models.ForeignKey(Order, on_delete=models.CASCADE)
+    
+    class Meta:
+        db_table = 'shipments'
+
+class Users_Products(TimeStampModel):
+    user           = models.ForeignKey(User, on_delete=models.CASCADE)
+    products_sizes = models.ForeignKey(Products_sizes, on_delete=models.CASCADE)
+    quantity       = models.IntegerField()
 
     class Meta:
-        db_table = "sizes"
-
-class Image(models.Model):
-    image_url      = models.CharField(max_length=2000)
-    product        = models.ForeignKey(Product, on_delete=models.CASCADE)
-
-    class Meta:
-        db_table = "images"
+        db_table = 'users_products'
