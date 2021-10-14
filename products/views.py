@@ -1,12 +1,13 @@
 import json
 
-from django.http    import JsonResponse
-from django.views   import View
-from django.db      import IntegrityError
+from django.http      import JsonResponse
+from django.views     import View
+from django.db        import IntegrityError
+from django.db.models import Q
 
-from .models        import Product, Image, Menu, Category, SubCategory, Size
+from .models          import Product, Image, Menu, Category, SubCategory, Size
 
-class MenuView(View):
+class ProductsView(View):
     def post(self, request):
         try:
             data = json.loads(request.body)
@@ -21,21 +22,45 @@ class MenuView(View):
 
     def get(self, request):
         try:
-            menu         = Menu.objects.get(id=request.GET.get("id"))
+            menu_name    = request.GET.get('name')
             sorting      = request.GET.get('sort', '-created_at')
             offset       = int(request.GET.get('offset', 0))
             limit        = int(request.GET.get('limit', 8))
+            menu         = Menu.objects.filter(name=menu_name)
+            category     = Category.objects.filter(name=menu_name)
+            sub_category = SubCategory.objects.filter(name=menu_name)
+            q            = Q()
+
+            menu_list = [menu, category, sub_category]
+            for menus in menu_list:
+                if menus:
+                    menu = menus.first()
+
+            if menu:
+                products = menu.product_set.filter().order_by(sorting)[offset:offset+limit]
+
+            else:
+                products = Product.objects.all().order_by(sorting)[0:4]
+
             product_list = [{
+                "id"                : product.id,
+                "menu_name"         : product.menu.name,
+                "category_name"     : product.category.name,
+                "sub_category_name" : product.sub_category.name,
                 "name"              : product.name, 
                 "price"             : product.price, 
-                "image_url"         : product.image_set.first().image_url if product.image_set.first() else None,
+                "image_url"         : {"image_url1" :product.image_set.first().image_url, "image_url2" :product.image_set.last().image_url} 
+                                        if product.image_set.first() and product.image_set.last() else None,
                 "created_at"        : product.created_at,
                 "number_of_selling" : product.number_of_selling,
+                "url"               : "/products/product?id={}".format(product.id)
                 } 
-                for product in menu.product_set.all().order_by(sorting)[offset:offset+limit]
+                for product in products
             ]
+                        
+            return JsonResponse({"content" : product_list}, status = 200)
             
-            return JsonResponse({"name" : menu.name, "content" : product_list}, status = 200)
+            
 
         except Menu.DoesNotExist:
             return JsonResponse({"message" : "MENU_DOES_NOT_EXIST"}, status = 400)
@@ -45,83 +70,7 @@ class MenuView(View):
 
         except SubCategory.DoesNotExist:
             return JsonResponse({"message" : "SUB_CATEGORY_DOES_NOT_EXIST"}, status = 400)
-
-
-class CategoryView(View):
-    def post(self, request):
-        try:
-            data = json.loads(request.body)
-            Category.objects.create(
-                name = data["name"],
-                menu = Menu.objects.get(id= data["menu_id"]),
-            )
-
-            return JsonResponse({"message" : "CREATED"}, status=201)
-
-        except KeyError:
-            return JsonResponse({"message" : "KEY_ERROR"}, status = 400)
-
-    def get(self, request):
-        try:
-            category     = Category.objects.get(id=request.GET.get("id"))
-            sorting      = request.GET.get('sort', '-created_at')
-            offset       = int(request.GET.get('offset', 0))
-            limit        = int(request.GET.get('limit', 8))
-            product_list = [{
-                "name"              : product.name, 
-                "price"             : product.price, 
-                "image_url"         : product.image_set.first().image_url if product.image_set.first() else None,
-                "created_at"        : product.created_at,
-                "number_of_selling" : product.number_of_selling,
-                } 
-                for product in category.product_set.all().order_by(sorting)[offset:offset+limit]
-            ]
-
-            return JsonResponse({"name" : category.name, "content" : product_list}, status = 200)
-
-        except Category.DoesNotExist:
-            return JsonResponse({"message" : "CATEGORY_DOES_NOT_EXIST"}, status = 400)
-
-        except AttributeError:
-            return JsonResponse({'message' : 'IMAGE_DOES_NOT_EXIST'}, status = 400)    
-
-class SubCategoryView(View):
-    def post(self, request):
-        try:
-            data = json.loads(request.body)
-            SubCategory.objects.create(
-                name       = data["name"],
-                category   = Category.objects.get(id= data["category_id"])
-            )
-
-            return JsonResponse({"message" : "CREATED"}, status=201)
-
-        except KeyError:
-            return JsonResponse({"message" : "KEY_ERROR"}, status = 400)
-
-    def get(self, request):
-        try:
-            sub_category = SubCategory.objects.get(id =request.GET.get("id"))
-            sorting      = request.GET.get('sort', '-created_at')
-            offset       = int(request.GET.get('offset', 0))
-            limit        = int(request.GET.get('limit', 8))
-            product_list = [{
-                "name"              : product.name, 
-                "price"             : product.price,
-                "image_url"         : product.image_set.first().image_url if product.image_set.first() else None,
-                "created_at"        : product.created_at,
-                "number_of_selling" : product.number_of_selling,
-                } 
-                for product in sub_category.product_set.all().order_by(sorting)[offset:offset+limit]
-            ]
-
-            return JsonResponse({"name" : sub_category.name, "content" : product_list}, status = 200)
-
-        except SubCategory.DoesNotExist:
-            return JsonResponse({"message" : "SUB_CATEGORY_DOES_NOT_EXIST"}, status = 400)
-
-        except AttributeError:
-            return JsonResponse({'message' : 'IMAGE_DOES_NOT_EXIST'}, status = 400)    
+  
 
 class ProductView(View):
     def post(self, request):
@@ -173,7 +122,7 @@ class ProductView(View):
                 "information"           : product.information,
                 "price"                 : product.price,
                 "created_at"            : product.created_at,
-                "image"                 : [{"image_url" : image.image_url} for image in product.image_set.all()],
+                "img"                 : [{"img_url" : image.image_url} for image in product.image_set.all()],
                 "size"                  : [{
                     "type"     : size.type, 
                     "value"    : size.value, 
@@ -189,7 +138,7 @@ class ImageView(View):
     def post(self, request):
         try:
             data = json.loads(request.body)
-            Product.objects.get(id=data['id']).image_set.create(
+            Product.objects.get(id=data['product_id']).image_set.create(
                 image_url = data["image_url"],
             )
 
