@@ -1,5 +1,4 @@
 from django.db    import models
-
 class Menu(models.Model):
     name = models.CharField(max_length=45)
 
@@ -12,7 +11,7 @@ class Category(models.Model):
 
     class Meta:
         db_table = "categories"
-
+        
 class SubCategory(models.Model):
     name        = models.CharField(max_length=45)
     category    = models.ForeignKey(Category, on_delete=models.CASCADE)
@@ -31,6 +30,8 @@ class Product(models.Model):
     price               = models.DecimalField(max_digits=15, decimal_places=3)
     created_at          = models.DateField()
     sub_category        = models.ForeignKey(SubCategory, on_delete=models.SET_NULL , null=True)
+    menu                = models.ForeignKey(Menu, on_delete=models.SET_NULL , null=True)
+    category            = models.ForeignKey(Category, on_delete=models.SET_NULL , null=True)
 
     class Meta:
         db_table = "products"
@@ -54,6 +55,6 @@ class Size(models.Model):
 class Image(models.Model):
     image_url      = models.CharField(max_length=2000)
     product        = models.ForeignKey(Product, on_delete=models.CASCADE)
-
+    
     class Meta:
         db_table = "images"
