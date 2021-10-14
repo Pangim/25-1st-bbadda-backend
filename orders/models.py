@@ -38,7 +38,6 @@ class Order_item(TimeStampModel):
     quantity                  = models.IntegerField()
     product                   = models.ForeignKey(Product, on_delete=models.CASCADE)
     order                     = models.ForeignKey(Order, on_delete=models.CASCADE)
-    # order_item_status_code    = models.ForeignKey(Order_item_status_code, on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'order_items'
