@@ -22,25 +22,37 @@ class ProductsView(View):
 
     def get(self, request):
         try:
-            menu_name    = request.GET.get('name')
-            sorting      = request.GET.get('sort', '-created_at')
-            offset       = int(request.GET.get('offset', 0))
-            limit        = int(request.GET.get('limit', 8))
-            menu         = Menu.objects.filter(name=menu_name)
-            category     = Category.objects.filter(name=menu_name)
-            sub_category = SubCategory.objects.filter(name=menu_name)
-            q            = Q()
-
-            menu_list = [menu, category, sub_category]
-            for menus in menu_list:
-                if menus:
-                    menu = menus.first()
+            menu_name       = request.GET.get('name')
+            filtering_key   = request.GET.get('key')
+            filtering_value = request.GET.get('value')
+            sorting         = request.GET.get('sort', '-created_at')
+            offset          = int(request.GET.get('offset', 0))
+            limit           = int(request.GET.get('limit', 8))
+            menu            = Menu.objects.filter(name=menu_name)
+            category        = Category.objects.filter(name=menu_name)
+            sub_category    = SubCategory.objects.filter(name=menu_name)
+            menu_list       = Q()
 
             if menu:
-                products = menu.product_set.filter().order_by(sorting)[offset:offset+limit]
+                menu_list &= Q(sub_category__category__menu__name=menu_name)
+
+            if category:
+                menu_list &= Q(sub_category__category__name=menu_name)
+
+            if sub_category:
+                menu_list &= Q(sub_category__name=menu_name)
+
+            if filtering_key == 'team':
+                menu_list &= Q(team=filtering_value)
+
+            if filtering_key == 'color':
+                menu_list &= Q(color=filtering_value)
+            
+            if menu_list:
+                products = Product.objects.filter(menu_list).order_by(sorting)[offset:offset+limit]
 
             else:
-                products = Product.objects.all().order_by(sorting)[0:4]
+                products = Product.objects.filter(menu_list).order_by(sorting)[:4]
 
             product_list = [{
                 "id"                : product.id,
@@ -49,7 +61,8 @@ class ProductsView(View):
                 "sub_category_name" : product.sub_category.name,
                 "name"              : product.name, 
                 "price"             : product.price, 
-                "image_url"         : {"image_url1" :product.image_set.first().image_url, "image_url2" :product.image_set.last().image_url} 
+                "image_url"         : {"image_url1" :product.image_set.first().image_url, 
+                                       "image_url2" :product.image_set.last().image_url} 
                                         if product.image_set.first() and product.image_set.last() else None,
                 "created_at"        : product.created_at,
                 "number_of_selling" : product.number_of_selling,
@@ -60,8 +73,6 @@ class ProductsView(View):
                         
             return JsonResponse({"content" : product_list}, status = 200)
             
-            
-
         except Menu.DoesNotExist:
             return JsonResponse({"message" : "MENU_DOES_NOT_EXIST"}, status = 400)
 

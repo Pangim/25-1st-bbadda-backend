@@ -7,3 +7,4 @@ urlpatterns = [
     path('/image', ImageView.as_view()),
     path('/size', SizeView.as_view()),
 ]
+
