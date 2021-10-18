@@ -5,12 +5,11 @@
 ### 개발 인원 및 기간
 - 개발기간 : 2021/10/5 ~ 2021/10/15
 - 개발 인원 : 프론트엔드 4명, 백엔드 2명
-<!-- - [프론트엔드 github 링크](https://github.com/wecode-bootcamp-korea/25-1st-bbadda-frontend)
+- [프론트엔드 github 링크](https://github.com/wecode-bootcamp-korea/25-1st-bbadda-frontend)
 - [백엔드 github 링크](https://github.com/wecode-bootcamp-korea/25-1st-bbadda-backend) -->
 ### 프로젝트 선정이유
 - 이 사이트는 추가적인 학습 뿐 아니라 배운 내용들을 활용해볼 것들이 많아 선정하게 되었습니다.
 
-<br>
 ## 적용 기술 및 구현 기능
 ### 적용 기술
 > - Front-End : React.js, sass
@@ -22,13 +21,11 @@
 > - db에 저장된 정보를 바탕으로 데이터 통신을 통한 상품 상세데이터 출력
 > - 상품 상세페이지에서 설정한 정보(상품, 사이즈, 수량)를 주문페이지로 전송하여 해당 상품을 주문할 수 있는 기능 구현
 > - 주문완료 시 각 상품의 수량 차감, 유저의 포인트 차감, 판매량 증가 적용
-<!-- #### Backend
-####  -->
+#### Backend
 > - User, Product, Order 각각의 테이블 생성
 > - Query Parameter를 활용한 정렬 기능 및 페이지네이션 기능 구현
 > - Q객체를 활용한 메뉴 필터링 기능 구현
 > - 주문 기능에 transaction을 적용하여 특정 부분에서만 발생하는 에러 방지
-<br>
 ## Reference
 - 이 프로젝트는 [MLB](https://www.mlb-korea.com/) 사이트를 참조하여 학습목적으로 만들었습니다.
 - 실무수준의 프로젝트이지만 학습용으로 만들었기 때문에 이 코드를 활용하여 이득을 취하거나 무단 배포할 경우 법적으로 문제될 수 있습니다.
